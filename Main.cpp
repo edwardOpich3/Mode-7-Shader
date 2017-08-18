@@ -11,7 +11,7 @@ int main()
 	bool redraw = false;
 	bool loading = true;
 	float FOV = 150.0f;
-	float FOVmult = tan((FOV * (ALLEGRO_PI / 180.0f))/ 2.0f);
+	float FOVmult = tan((FOV * (ALLEGRO_PI / 180.0f)) / 2.0f);
 	float FPS = 60.0f;
 	int width = 1024;
 	int height = 896;
@@ -21,8 +21,8 @@ int main()
 
 	float angle = 0.0f;
 
-	float x = /*924*/ 0.0f;
-	float y = /*546*/ 0.0f;
+	float x = 924;
+	float y = 546;
 	float z = -32.0f;	// -16.0f for split screen!
 
 	float horizon = 32.0f; // From the top
@@ -32,7 +32,7 @@ int main()
 		return -1;
 	}
 
-	al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
+	al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE/* | ALLEGRO_OPENGL*/);		// Un-comment the "| ALLEGRO_OPENGL" to run in OpenGL mode. It slows things down a bit though!
 	ALLEGRO_DISPLAY* display = al_create_display(width, height);
 
 	if (!display)
@@ -57,7 +57,7 @@ int main()
 		return -1;
 	}
 
-	al_set_window_title(display, "Mode 7 Shader Test");
+	al_set_window_title(display, "Kart Racing Engine");
 
 	al_install_keyboard();
 
@@ -110,53 +110,105 @@ int main()
 			parallax2 = al_load_bitmap("data/parallax2.png");
 			//al_set_new_bitmap_flags(!ALLEGRO_MEMORY_BITMAP);
 
-			mode7Shader = al_create_shader(ALLEGRO_SHADER_HLSL);
-			if (!al_attach_shader_source_file(mode7Shader, ALLEGRO_VERTEX_SHADER, "data/Mode7 Vertex Shader.hlsl"))
+			if (!(al_get_display_flags(display) & ALLEGRO_OPENGL))
 			{
-				std::cout << al_get_shader_log(mode7Shader);
-				std::cin.get();
-				std::cin.get();
-				quit = true;
-			}
-			else if (!al_attach_shader_source_file(mode7Shader, ALLEGRO_PIXEL_SHADER, "data/Mode7 Pixel Shader.hlsl"))
-			{
-				std::cout << al_get_shader_log(mode7Shader);
-				std::cin.get();
-				std::cin.get();
-				quit = true;
-			}
-			else if (!al_build_shader(mode7Shader))
-			{
-				std::cout << al_get_shader_log(mode7Shader);
-				std::cin.get();
-				std::cin.get();
-				quit = true;
+				mode7Shader = al_create_shader(ALLEGRO_SHADER_HLSL);
+				if (!al_attach_shader_source_file(mode7Shader, ALLEGRO_VERTEX_SHADER, "Vertex Shader.hlsl"))
+				{
+					std::cout << al_get_shader_log(mode7Shader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_attach_shader_source_file(mode7Shader, ALLEGRO_PIXEL_SHADER, "Mode7 Pixel Shader.hlsl"))
+				{
+					std::cout << al_get_shader_log(mode7Shader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_build_shader(mode7Shader))
+				{
+					std::cout << al_get_shader_log(mode7Shader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+
+				BGShader = al_create_shader(ALLEGRO_SHADER_HLSL);
+				if (!al_attach_shader_source_file(BGShader, ALLEGRO_VERTEX_SHADER, "Vertex Shader.hlsl"))
+				{
+					std::cout << al_get_shader_log(BGShader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_attach_shader_source_file(BGShader, ALLEGRO_PIXEL_SHADER, "BG Pixel Shader.hlsl"))
+				{
+					std::cout << al_get_shader_log(BGShader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_build_shader(BGShader))
+				{
+					std::cout << al_get_shader_log(BGShader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
 			}
 
-			BGShader = al_create_shader(ALLEGRO_SHADER_HLSL);
-			if (!al_attach_shader_source_file(BGShader, ALLEGRO_VERTEX_SHADER, "data/Mode7 Vertex Shader.hlsl"))
+			else if (al_get_display_flags(display) & ALLEGRO_OPENGL)
 			{
-				std::cout << al_get_shader_log(BGShader);
-				std::cin.get();
-				std::cin.get();
-				quit = true;
-			}
-			else if (!al_attach_shader_source_file(BGShader, ALLEGRO_PIXEL_SHADER, "data/BG Pixel Shader HLSL.hlsl"))
-			{
-				std::cout << al_get_shader_log(BGShader);
-				std::cin.get();
-				std::cin.get();
-				quit = true;
-			}
-			else if (!al_build_shader(BGShader))
-			{
-				std::cout << al_get_shader_log(BGShader);
-				std::cin.get();
-				std::cin.get();
-				quit = true;
+				mode7Shader = al_create_shader(ALLEGRO_SHADER_GLSL);
+				if (!al_attach_shader_source_file(mode7Shader, ALLEGRO_VERTEX_SHADER, "Vertex Shader.glsl"))
+				{
+					std::cout << al_get_shader_log(mode7Shader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_attach_shader_source_file(mode7Shader, ALLEGRO_PIXEL_SHADER, "Mode7 Pixel Shader.glsl"))
+				{
+					std::cout << al_get_shader_log(mode7Shader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_build_shader(mode7Shader))
+				{
+					std::cout << al_get_shader_log(mode7Shader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+
+				BGShader = al_create_shader(ALLEGRO_SHADER_GLSL);
+				if (!al_attach_shader_source_file(BGShader, ALLEGRO_VERTEX_SHADER, "Vertex Shader.glsl"))
+				{
+					std::cout << al_get_shader_log(BGShader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_attach_shader_source_file(BGShader, ALLEGRO_PIXEL_SHADER, "BG Pixel Shader.glsl"))
+				{
+					std::cout << al_get_shader_log(BGShader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
+				else if (!al_build_shader(BGShader))
+				{
+					std::cout << al_get_shader_log(BGShader);
+					std::cin.get();
+					std::cin.get();
+					quit = true;
+				}
 			}
 
-			//cout << al_get_default_shader_source(ALLEGRO_SHADER_HLSL, ALLEGRO_VERTEX_SHADER);
+			//cout << al_get_default_shader_source(ALLEGRO_SHADER_GLSL, ALLEGRO_PIXEL_SHADER);
 			//cout << "Pixel format " << al_get_bitmap_format(map) << "\n";	// 9; ALLEGRO_PIXEL_FORMAT_ARGB_8888
 			if (!map)
 			{
@@ -338,10 +390,21 @@ int main()
 			ALLEGRO_TRANSFORM rotation;
 			al_identity_transform(&rotation);
 			al_translate_transform(&rotation, 0, 0);							// Move bitmap's origin to -x, -y
-			al_scale_transform(&rotation, 1.0f, 2.0f);							// Scale it; 2.0f for single player, 4.0f for vertical split-screen
+
+			if (!(al_get_display_flags(display) & ALLEGRO_OPENGL))
+			{
+				al_scale_transform(&rotation, 1.0f, 2.0f);							// Scale it; 2.0f for single player, 4.0f for vertical split-screen
+			}
+
 			al_rotate_transform(&rotation, angle * (ALLEGRO_PI / 180.0f));		// Rotate it
+
+			if (al_get_display_flags(display) & ALLEGRO_OPENGL)
+			{
+				al_scale_transform(&rotation, 1.0f, 2.0f);
+			}
+
 			al_translate_transform(&rotation, 128, 112);						// Center the rotation point at 128, 112
-			
+
 			al_set_target_bitmap(mapBuffer);
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 			al_set_target_bitmap(buffer);
@@ -373,14 +436,27 @@ int main()
 
 			al_use_shader(mode7Shader);
 
+
 			float gamePos[3] = { x, y, z };
-			if (!al_set_shader_float_vector("gamePos", 1, gamePos, 3))
+
+			if (al_get_display_flags(display) & ALLEGRO_OPENGL)
 			{
-				std::cout << "Failed to update var\n";
+				if (!al_set_shader_float_vector("gamePos", 3, gamePos, 1))
+				{
+					std::cout << "Failed to update gamePos\n";
+				}
 			}
+			else
+			{
+				if (!al_set_shader_float_vector("gamePos", 1, gamePos, 3))
+				{
+					std::cout << "Failed to update gamePos\n";
+				}
+			}
+
 			if (!al_set_shader_float("horizon", horizon))
 			{
-				std::cout << "Failed to update var\n";
+				std::cout << "Failed to update horizon\n";
 			}
 			if (!al_set_shader_sampler("map_tex", map, 1))
 			{
@@ -405,17 +481,19 @@ int main()
 			}
 			if (!al_set_shader_float("width", 1280.0f))
 			{
-				std::cout << "Failed to update speed\n";
+				std::cout << "Failed to update width 1\n";
 			}
 
 			al_draw_bitmap(parallax2, 0, 0, NULL);
 
 			if (!al_set_shader_float("width", 512.0f))
 			{
-				std::cout << "Failed to update speed\n";
+				std::cout << "Failed to update width 2\n";
 			}
 
 			al_draw_bitmap(parallax1, 0, 0, NULL);
+
+			al_use_shader(BGShader);
 
 			//al_draw_bitmap(map, -x + 128, -y + 112, NULL);
 
